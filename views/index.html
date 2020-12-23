@@ -1,41 +1,176 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Deadline Timer</title>
+	<title>How are you ?</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 	<link rel="stylesheet" type="text/css" href="style.css">
 	<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;500&display=swap" rel="stylesheet">
 </head>
 <body>
-	<div class="parent">
-		<div class="left-top">
-			<h1>Deadline timer</p1>
-		</div>
-		<div class="right-top">
-			<p>CMP Current max points</p>
-		</div>
-	</div>
+	
 
-	<input type="date" />
-	<select>
-		<option class="opt">HW1</option>
-		<option class="opt">HW2</option>
-		<option class="opt">HW3</option>
-	</select>
-
-	<input id="btn" type="button" value="Submit" class="btn" >
-
-	<div class="hw-holder">
-		<div class="hw-item">
-			<p>HW1 CMP 0.5</p>
-		</div>
-	</div>
+	<div class="top_on">
 		
+		<h1 class="top_on"> How are you ?</h1>
+	
+		</div>
+		<br>
+		<div class="holder">
+		<div class="item">
+		<div class="parent">
+			<div class="left-top">
+				<button class="btn" type="button" onclick="init()">Start</button>
+					<br>
+				<div class="parentl" id="webcam-container"></div>
+			</div>
+			<div class="right-top">
+				<div class="parentr" id="label-container"></div>
+			</div>
+</div>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+	<script type="text/javascript">
+		// More API functions here:
+		// https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+	
+		// the link to your model provided by Teachable Machine export panel
+		const URL = "https://teachablemachine.withgoogle.com/models/8llxABc8r/";
+	
+		let model, webcam, labelContainer, maxPredictions;
+	
+		// Load the image model and setup the webcam
+		async function init() {
+			const modelURL = URL + "model.json";
+			const metadataURL = URL + "metadata.json";
+	
+			// load the model and metadata
+			// Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+			// or files from your local hard drive
+			// Note: the pose library adds "tmImage" object to your window (window.tmImage)
+			model = await tmImage.load(modelURL, metadataURL);
+			maxPredictions = model.getTotalClasses();
+	
+			// Convenience function to setup a webcam
+			const flip = true; // whether to flip the webcam
+			webcam = new tmImage.Webcam(300, 300, flip); // width, height, flip
+			await webcam.setup(); // request access to the webcam
+			await webcam.play();
+			window.requestAnimationFrame(loop);
+	
+			// append elements to the DOM
+			document.getElementById("webcam-container").appendChild(webcam.canvas);
+			labelContainer = document.getElementById("label-container");
+			for (let i = 0; i < maxPredictions; i++) { // and class labels
+				labelContainer.appendChild(document.createElement("divlab"));
+			}
+		}
+	
+		async function loop() {
+			webcam.update(); // update the webcam frame
+			await predict();
+			window.requestAnimationFrame(loop);
+		}
+	
+		// run the webcam image through the image model
+		async function predict() {
+			// predict can take in an image, video or canvas html element
+			const prediction = await model.predict(webcam.canvas);
+			for (let i = 0; i < maxPredictions; i++) {
+				const classPrediction =
+					prediction[i].className + " :  " + prediction[i].probability.toFixed(2) + "\n";
+				labelContainer.childNodes[i].innerHTML = classPrediction;
+			}
+		}
+	</script>
+	</div>
+</div> 
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+	<!-- <div class="top_on">
+		
+			<h1 class="top_on"> How are you ?</h1>
+		
+	</div>
+	<br>
+	<div class="holder">
+	<div class="item">
+	<button type="button" onclick="init()">Start</button>
+	<div id="webcam-container"></div>
+	<div id="label-container"></div>
+	<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+	<script type="text/javascript">
+		// More API functions here:
+		// https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+	
+		// the link to your model provided by Teachable Machine export panel
+		const URL = "https://teachablemachine.withgoogle.com/models/8llxABc8r/";
+	
+		let model, webcam, labelContainer, maxPredictions;
+	
+		// Load the image model and setup the webcam
+		async function init() {
+			const modelURL = URL + "model.json";
+			const metadataURL = URL + "metadata.json";
+	
+			// load the model and metadata
+			// Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+			// or files from your local hard drive
+			// Note: the pose library adds "tmImage" object to your window (window.tmImage)
+			model = await tmImage.load(modelURL, metadataURL);
+			maxPredictions = model.getTotalClasses();
+	
+			// Convenience function to setup a webcam
+			const flip = true; // whether to flip the webcam
+			webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+			await webcam.setup(); // request access to the webcam
+			await webcam.play();
+			window.requestAnimationFrame(loop);
+	
+			// append elements to the DOM
+			document.getElementById("webcam-container").appendChild(webcam.canvas);
+			labelContainer = document.getElementById("label-container");
+			for (let i = 0; i < maxPredictions; i++) { // and class labels
+				labelContainer.appendChild(document.createElement("div"));
+			}
+		}
+	
+		async function loop() {
+			webcam.update(); // update the webcam frame
+			await predict();
+			window.requestAnimationFrame(loop);
+		}
+	
+		// run the webcam image through the image model
+		async function predict() {
+			// predict can take in an image, video or canvas html element
+			const prediction = await model.predict(webcam.canvas);
+			for (let i = 0; i < maxPredictions; i++) {
+				const classPrediction =
+					prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+				labelContainer.childNodes[i].innerHTML = classPrediction;
+			}
+		}
+	</script>
+	
+		</div>
+	</div> -->
+	<!-- <div>Teachable Machine Image Model</div> -->
+	
 
 <!-- 
 	<img src="0.svg" />
  -->
-</body>
-	<script src="client.js" ></script>
-</html>
+<!-- </body>
+</html> -->
